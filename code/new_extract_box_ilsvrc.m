@@ -4,21 +4,21 @@
 %clc;
 clear;
 close all;
-run('startup');
-caffe.reset_all();
+% run('startup');
+%caffe.reset_all();
 addpath('../faster_rcnn/functions/rpn');
 addpath(genpath('../faster_rcnn/utlis'));
 
 gpu_id = 0;
-caffe_set_device( gpu_id );
-caffe.set_mode_gpu();
+%caffe_set_device( gpu_id );
+%caffe.set_mode_gpu();
 %**************************************************************************
 %***************************** LOAD MODEL *********************************
 model_dir_name = 'AttractioNet_Model';
 full_model_dir = fullfile(pwd, 'models-exps', model_dir_name);
-assert(exist(full_model_dir,'dir')>0,sprintf('The %s model directory does not exist',full_model_dir));
+%assert(exist(full_model_dir,'dir')>0,sprintf('The %s model directory does not exist',full_model_dir));
 mat_file_name  = 'box_proposal_model.mat';
-model = AttractioNet_load_model(full_model_dir, mat_file_name);
+% model = AttractioNet_load_model(full_model_dir, mat_file_name);
 
 %**************************************************************************
 %********************** CONFIGURATION PARAMETERS **************************
@@ -59,7 +59,7 @@ switch imdb.name
         imdb.flip = true;
         
     case 'ilsvrc14_val1'
-        root_folder = '/home/hongyang/dataset/imagenet_det/ILSVRC2014_devkit';
+        root_folder = './datasets/ilsvrc14_det/ILSVRC2014_devkit';
         fid = fopen([root_folder '/data/det_lists/val1.txt'], 'r');
         temp = textscan(fid, '%s%s');
         test_im_list = temp{1}; clear temp;
@@ -114,7 +114,7 @@ boxes_all = cell(length(test_im_list), 1);
 
 for kk = 1:length(boxes_uncut)
     if kk == 1 || kk == length(boxes_uncut) || mod(kk, 1000) == 0
-        fprintf('temp, progress: (%d/%d)', kk, length(test_im_list));
+        fprintf('temp, progress: (%d/%d)\n', kk, length(test_im_list));
     end
     bbox_props_out = AttractioNet_postprocess(boxes_uncut{kk}, ...
         'thresholds',       box_prop_conf.threshold, ...
@@ -201,3 +201,5 @@ end
 %             sprintf('_recall_%.2f.mat', mean_recall)], 'recall_per_cls');
 %     end
 % end
+
+exit;
