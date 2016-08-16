@@ -37,12 +37,22 @@ disp(model);
 %****************************** READ IMAGE ********************************
 % dataset
 result_name = 'provided_model_Aug_14th';
+<<<<<<< HEAD
 fucking_start_im = 25001; %125001;
 fucking_end_im = 50000; %length(test_im_list);
 gpu_id = 1;
 %imdb.name = 'ilsvrc14_val1_14';
 %imdb.name = 'ilsvrc14_val1_13';
 imdb.name = 'ilsvrc14_pos1k_13';
+=======
+
+fucking_start_im = 1;
+%fucking_end_im = length(test_im_list);
+gpu_id = 2;
+imdb.name = 'ilsvrc14_val1_14';
+% imdb.name = 'ilsvrc14_val1_13';
+%imdb.name = 'ilsvrc14_pos1k_13';
+>>>>>>> 65e5260eedbd54f105d1773503461fe44c071c5a
 %imdb.name = 'ilsvrc14_real_test';
 
 sub_dataset = strrep(imdb.name, 'ilsvrc14_', '');
@@ -130,6 +140,9 @@ caffe.set_mode_gpu();
 %*************************** RUN AttractioNet *****************************
 whole_proposal_file = fullfile(result_path, result_name, 'boxes_uncut.mat');
 split_file = @(x) fullfile(result_path, result_name, sprintf('/split/%s.mat', x(11:end)));
+if strcmp(imdb.name, 'ilsvrc14_val1_14')
+    split_file = @(x) fullfile(result_path, result_name, sprintf('/split/%s.mat', x(23:end-5)));
+end
 
 if ~exist(whole_proposal_file, 'file')
     
@@ -142,7 +155,7 @@ if ~exist(whole_proposal_file, 'file')
                 'attractioNet', sub_dataset, i, fucking_start_im, fucking_end_im, length(test_im_list));
         end
         if ~exist(split_file(test_im_list{i}), 'file')
-            image = imread([im_path '/' test_im_list{i} '.JPEG']);
+            image = imread([im_path '/' test_im_list{i} extension]);
             [boxes_all_single, boxes_uncut_single] = AttractioNet(model, image, box_prop_conf);
             save(split_file(test_im_list{i}), 'boxes_uncut_single', 'boxes_all_single');
         end
