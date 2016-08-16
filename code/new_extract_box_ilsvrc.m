@@ -9,7 +9,7 @@ caffe.reset_all();
 addpath('../faster_rcnn/functions/rpn');
 addpath(genpath('../faster_rcnn/utlis'));
 
-gpu_id = 0;
+gpu_id = 3;
 caffe_set_device( gpu_id );
 caffe.set_mode_gpu();
 %**************************************************************************
@@ -43,10 +43,10 @@ result_name = 'provided_model_Aug_14th';
 
 
 % sub_dataset = 'val1';
-imdb.name = 'ilsvrc14_val1_14';
-imdb.name = 'ilsvrc14_val1_13';
-imdb.name = 'ilsvrc14_pos1k_13';
-%imdb.name = 'ilsvrc14_real_test';
+%imdb.name = 'ilsvrc14_val1_14';
+%imdb.name = 'ilsvrc14_val1_13';
+%imdb.name = 'ilsvrc14_pos1k_13';
+imdb.name = 'ilsvrc14_real_test';
 % sub_dataset = 'train14';
 % imdb.name = 'ilsvrc14_train14';
 sub_dataset = strrep(imdb.name, 'ilsvrc14_', '');
@@ -142,12 +142,12 @@ if ~exist(whole_proposal_file, 'file')
             fprintf('extract box, method: %s, dataset: %s, (%d/%d)...\n', ...
                 'attractioNet', sub_dataset, i, length(test_im_list));
         end
-        image = imread([im_path '/' test_im_list{i} '.JPEG']);
+        image = imread([im_path '/' test_im_list{i} extension]);
         [boxes_all{i}, boxes_uncut{i}] = AttractioNet(model, image, box_prop_conf);
         
     end
     caffe.reset_all();
-    save(whole_proposal_file, 'boxes_uncut');
+    save(whole_proposal_file, 'boxes_uncut', '-v7.3');
 end
 
 % %% ========= temporal =========
@@ -194,16 +194,18 @@ for i = 1:length(boxes_all{1})
         proposal_path_jot{i} = [result_path '/' result_name '/' ...
             sprintf('boxes_nms_%.2f.mat', box_prop_conf.nms_range(i-1))];
     end
-    save(proposal_path_jot{i}, 'aboxes');
+    save(proposal_path_jot{i}, 'aboxes', '-v7.3');
 end
 
 % compute recall
+if 0
 for i = 1:length(boxes_all{1})
     recall_per_cls = compute_recall_ilsvrc(proposal_path_jot{i}, 300, imdb);
     mean_recall = 100*mean(extractfield(recall_per_cls, 'recall'));
     
     cprintf('blue', 'i = %d, mean rec:: %.2f\n\n', i, mean_recall);
     save([proposal_path_jot{i}(1:end-4) sprintf('_recall_%.2f.mat', mean_recall)], 'recall_per_cls');
+end
 end
 
 %% multi-thres nms
