@@ -37,14 +37,15 @@ disp(model);
 %****************************** READ IMAGE ********************************
 % dataset
 result_name = 'provided_model_Aug_14th';
-imdb.name = 'ilsvrc14_val1_14';
+
+gpu_id = 0;
+%imdb.name = 'ilsvrc14_val1_14';
 %imdb.name = 'ilsvrc14_val1_13';
-%imdb.name = 'ilsvrc14_pos1k_13';
+imdb.name = 'ilsvrc14_pos1k_13';
 %imdb.name = 'ilsvrc14_real_test';
 
 fucking_start_im = 1; %35001;
 %fucking_end_im = 40000; %length(test_im_list);
-gpu_id = 1;
 
 sub_dataset = strrep(imdb.name, 'ilsvrc14_', '');
 % ------------------------------------------
@@ -61,7 +62,7 @@ switch imdb.name
         imdb.flip = true;
         
     case 'ilsvrc14_val1'
-        root_folder = '/home/hongyang/dataset/imagenet_det/ILSVRC2014_devkit';
+        root_folder = './datasets/ilsvrc14_det/ILSVRC2014_devkit';
         fid = fopen([root_folder '/data/det_lists/val1.txt'], 'r');
         temp = textscan(fid, '%s%s');
         test_im_list = temp{1}; clear temp;
@@ -242,8 +243,6 @@ end
 %             sprintf('_recall_%.2f.mat', mean_recall)], 'recall_per_cls');
 %     end
 % end
-
-
 
 % %% ========= temporal =========
 % load(whole_proposal_file);
