@@ -42,9 +42,9 @@ imdb.name = 'ilsvrc14_val1_14';
 %imdb.name = 'ilsvrc14_pos1k_13';
 %imdb.name = 'ilsvrc14_real_test';
 
-fucking_start_im = 30001;
-fucking_end_im = 35000; %length(test_im_list);
-gpu_id = 0;
+fucking_start_im = 1; %35001;
+%fucking_end_im = 40000; %length(test_im_list);
+gpu_id = 1;
 
 sub_dataset = strrep(imdb.name, 'ilsvrc14_', '');
 % ------------------------------------------
@@ -131,6 +131,9 @@ caffe.set_mode_gpu();
 %*************************** RUN AttractioNet *****************************
 whole_proposal_file = fullfile(result_path, result_name, 'boxes_uncut.mat');
 split_file = @(x) fullfile(result_path, result_name, sprintf('/split/%s.mat', x(11:end)));
+if strcmp(imdb.name, 'ilsvrc14_val1_14')
+    split_file = @(x) fullfile(result_path, result_name, sprintf('/split/%s.mat', x(23:end-5)));
+end
 
 if ~exist(whole_proposal_file, 'file')
     
@@ -161,9 +164,13 @@ assert(im_num == length(test_im_list), ...
 fprintf('merge these split results\n\n');
 boxes_all = cell(length(test_im_list), 1);
 for i = 1:length(test_im_list)
-    
-    ld = load(split_file(test_im_list{i}));
-    boxes_all{i} = ld.boxes_all_single;
+    try 
+    	ld = load(split_file(test_im_list{i}));
+    	boxes_all{i} = ld.boxes_all_single;
+    catch
+	warning('reading file %s failed\n', test_im_list{i});
+	boxes_all{i} = [];
+    end
 end
 
 %% normal nms below
@@ -171,7 +178,11 @@ proposal_path_jot = cell(length(boxes_all{1}), 1);
 for i = 1:length(boxes_all{1})
     aboxes = cell(length(test_im_list), 1);
     for j = 1:length(test_im_list)
-        aboxes{j} = boxes_all{j}{i};
+	try
+        	aboxes{j} = boxes_all{j}{i};
+	catch
+		aboxes{j} = [];
+	end
     end
     if i == 1
         proposal_path_jot{i} = [result_path '/' ...
@@ -180,6 +191,7 @@ for i = 1:length(boxes_all{1})
         proposal_path_jot{i} = [result_path '/' result_name '/' ...
             sprintf('boxes_nms_%.2f.mat', box_prop_conf.nms_range(i-1))];
     end
+    fprintf('saving %s ...\n', proposal_path_jot{i});
     save(proposal_path_jot{i}, 'aboxes', '-v7.3');
 end
 
