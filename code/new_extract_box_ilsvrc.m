@@ -38,13 +38,23 @@ disp(model);
 % dataset
 result_name = 'provided_model_Aug_14th';
 
+<<<<<<< HEAD
 fucking_start_im = 1;
 fucking_end_im = 30000; %length(test_im_list);
 gpu_id = 2;
 imdb.name = 'ilsvrc14_val1_14';
 % imdb.name = 'ilsvrc14_val1_13';
 %imdb.name = 'ilsvrc14_pos1k_13';
+=======
+gpu_id = 0;
+%imdb.name = 'ilsvrc14_val1_14';
+%imdb.name = 'ilsvrc14_val1_13';
+imdb.name = 'ilsvrc14_pos1k_13';
+>>>>>>> 1ffe389a91aba8bd8c8b4e75dd6fc86a2efcd1f0
 %imdb.name = 'ilsvrc14_real_test';
+
+fucking_start_im = 1; %35001;
+%fucking_end_im = 40000; %length(test_im_list);
 
 sub_dataset = strrep(imdb.name, 'ilsvrc14_', '');
 % ------------------------------------------
@@ -61,7 +71,7 @@ switch imdb.name
         imdb.flip = true;
         
     case 'ilsvrc14_val1'
-        root_folder = '/home/hongyang/dataset/imagenet_det/ILSVRC2014_devkit';
+        root_folder = './datasets/ilsvrc14_det/ILSVRC2014_devkit';
         fid = fopen([root_folder '/data/det_lists/val1.txt'], 'r');
         temp = textscan(fid, '%s%s');
         test_im_list = temp{1}; clear temp;
@@ -164,9 +174,13 @@ assert(im_num == length(test_im_list), ...
 fprintf('merge these split results\n\n');
 boxes_all = cell(length(test_im_list), 1);
 for i = 1:length(test_im_list)
-    
-    ld = load(split_file(test_im_list{i}));
-    boxes_all{i} = ld.boxes_all_single;
+    try 
+    	ld = load(split_file(test_im_list{i}));
+    	boxes_all{i} = ld.boxes_all_single;
+    catch
+	warning('reading file %s failed\n', test_im_list{i});
+	boxes_all{i} = [];
+    end
 end
 
 %% normal nms below
@@ -174,7 +188,11 @@ proposal_path_jot = cell(length(boxes_all{1}), 1);
 for i = 1:length(boxes_all{1})
     aboxes = cell(length(test_im_list), 1);
     for j = 1:length(test_im_list)
-        aboxes{j} = boxes_all{j}{i};
+	try
+        	aboxes{j} = boxes_all{j}{i};
+	catch
+		aboxes{j} = [];
+	end
     end
     if i == 1
         proposal_path_jot{i} = [result_path '/' ...
@@ -183,7 +201,8 @@ for i = 1:length(boxes_all{1})
         proposal_path_jot{i} = [result_path '/' result_name '/' ...
             sprintf('boxes_nms_%.2f.mat', box_prop_conf.nms_range(i-1))];
     end
-    save(proposal_path_jot{i}, 'aboxes');
+    fprintf('saving %s ...\n', proposal_path_jot{i});
+    save(proposal_path_jot{i}, 'aboxes', '-v7.3');
 end
 
 % % compute recall
@@ -233,8 +252,6 @@ end
 %             sprintf('_recall_%.2f.mat', mean_recall)], 'recall_per_cls');
 %     end
 % end
-
-
 
 % %% ========= temporal =========
 % load(whole_proposal_file);
