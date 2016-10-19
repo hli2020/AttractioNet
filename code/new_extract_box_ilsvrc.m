@@ -38,11 +38,11 @@ disp(model);
 % dataset
 result_name = 'provided_model_Aug_14th';
 
-fucking_start_im = 125001;
-%fucking_end_im = length(test_im_list);
-gpu_id = 0;
-imdb.name = 'ilsvrc14_val1_14';
-imdb.name = 'ilsvrc14_val1_13';
+fucking_start_im = 100001;
+fucking_end_im = 115000; %length(test_im_list);
+gpu_id = 1;
+%imdb.name = 'ilsvrc14_val1_14';
+%imdb.name = 'ilsvrc14_val1_13';
 imdb.name = 'ilsvrc14_pos1k_13';
 %imdb.name = 'ilsvrc14_real_test';
 
@@ -143,8 +143,14 @@ if ~exist(whole_proposal_file, 'file')
                 'attractioNet', sub_dataset, i, fucking_start_im, fucking_end_im, length(test_im_list));
         end
         if ~exist(split_file(test_im_list{i}), 'file')
-            image = imread([im_path '/' test_im_list{i} '.JPEG']);
-            [boxes_all_single, boxes_uncut_single] = AttractioNet(model, image, box_prop_conf);
+            try 
+                image = imread([im_path '/' test_im_list{i} '.JPEG']);
+                [boxes_all_single, boxes_uncut_single] = AttractioNet(model, image, box_prop_conf);
+            catch
+                warning('fucking CMYK images, skip');
+                boxes_all_single = []; boxes_uncut_single = [];
+            end
+            
             save(split_file(test_im_list{i}), 'boxes_uncut_single', 'boxes_all_single');
         end
     end
