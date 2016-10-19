@@ -39,7 +39,7 @@ disp(model);
 result_name = 'provided_model_Aug_14th';
 
 fucking_start_im = 1;
-%fucking_end_im = length(test_im_list);
+fucking_end_im = 30000; %length(test_im_list);
 gpu_id = 2;
 imdb.name = 'ilsvrc14_val1_14';
 % imdb.name = 'ilsvrc14_val1_13';
