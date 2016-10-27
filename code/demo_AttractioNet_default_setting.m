@@ -9,9 +9,9 @@ caffe.reset_all();
 %************************* SET GPU/CPU DEVICE *****************************
 % 1-indexed
 gpu_id = 1;
-total_chunk = 4;
+total_chunk = 8;
 curr_chunk = 1;
-which_set = 'val'; %'train';
+which_set = 'train'; %'val'; %'train';
 result_name = 'hyli_default_settting';
 top_k = 1000;
 
@@ -95,8 +95,8 @@ for i = 1 : num_images
     boxes = AttractioNet_original(model, image, box_prop_conf);
     box_result(i).box = single(boxes(1:min(top_k, size(boxes,1)), 1:4));
     
-    if mod(i, 50) == 1 || i == num_images
-        take = toc(t)/(3600*50);
+    if mod(i, 10) == 1 || i == num_images
+        take = toc(t)/(3600*10);
         time_left = take*(num_images-i);
         fprintf('%s, ck# %d (%d-%d), gpu# %d, progress i/total, %d/%d, %.3f hrs left ...\n', ...
             which_set, curr_chunk, start_ind, end_ind, gpu_id, i, num_images, time_left);
